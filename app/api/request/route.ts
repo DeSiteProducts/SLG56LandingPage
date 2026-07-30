@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import nodemailer from "nodemailer";
 
 export const runtime = "nodejs";
 
@@ -23,15 +22,6 @@ const bucketWidthLabels: Record<string, string> = {
 
 function getString(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
-}
-
-function escapeHtml(value: string) {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
 }
 
 function validatePayload(payload: RequestPayload) {
@@ -97,7 +87,10 @@ export async function POST(request: Request) {
   try {
     payload = (await request.json()) as RequestPayload;
   } catch {
-    return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid request body." },
+      { status: 400 }
+    );
   }
 
   const { data, error } = validatePayload(payload);
@@ -106,82 +99,43 @@ export async function POST(request: Request) {
     return NextResponse.json({ error }, { status: 400 });
   }
 
-  const smtpHost = process.env.SMTP_HOST;
-  const smtpPort = Number(process.env.SMTP_PORT ?? "587");
-  const smtpUser = process.env.SMTP_USER;
-  const smtpPass = process.env.SMTP_PASS;
-  const smtpFrom = process.env.SMTP_FROM;
-
-  if (!smtpHost || !smtpUser || !smtpPass || !smtpFrom) {
-    return NextResponse.json(
-      { error: "Email service is not configured yet." },
-      { status: 503 },
-    );
-  }
-
-  const submittedAt = new Date().toLocaleString("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "America/Chicago",
-  });
-
-  const rows = [
-    ["Bucket width", bucketWidthLabels[data.bucketWidth]],
-    ["Full name", data.fullName],
-    ["Phone", data.phone],
-    ["Email", data.email],
-    ["Country", data.country],
-    ["Street address / road name", data.roadName],
-    ["City", data.city],
-    ["State / province", data.state],
-    ["ZIP / postal code", data.zipCode],
-    ["Submitted", submittedAt],
-  ];
-
-  const text = rows.map(([label, value]) => `${label}: ${value}`).join("\n");
-  const htmlRows = rows
-    .map(
-      ([label, value]) => `
-        <tr>
-          <th align="left" style="padding:10px 14px;background:#f1f5f9;border-bottom:1px solid #e2e8f0;font-family:Arial,sans-serif;font-size:14px;color:#0f172a;">${escapeHtml(label)}</th>
-          <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;font-family:Arial,sans-serif;font-size:14px;color:#334155;">${escapeHtml(value)}</td>
-        </tr>
-      `,
-    )
-    .join("");
-
-  const transporter = nodemailer.createTransport({
-    auth: {
-      pass: smtpPass,
-      user: smtpUser,
-    },
-    host: smtpHost,
-    port: smtpPort,
-    secure: process.env.SMTP_SECURE === "true" || smtpPort === 465,
-  });
-
   try {
-    await transporter.sendMail({
-      from: smtpFrom,
-      html: `
-        <div style="font-family:Arial,sans-serif;color:#0f172a;">
-          <h1 style="font-size:22px;margin:0 0 16px;">New SLG 56 request</h1>
-          <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;max-width:680px;border:1px solid #e2e8f0;">
-            ${htmlRows}
-          </table>
-        </div>
-      `,
-      replyTo: data.email,
-      subject: `New SLG 56 request from ${data.fullName}`,
-      text,
-      to: "salesusa@desiteproducts.com",
-    });
-  } catch {
+    const response = await fetch(
+      "https://ppl0reirjh.execute-api.us-east-1.amazonaws.com/default/sendSLG56email",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    );
+
+    if (!response.ok) {
+      const errorBody = await response.text();
+
+      console.error("Lambda Error:", errorBody);
+
+      return NextResponse.json(
+        {
+          error:
+            "The request could not be emailed. Please try again later.",
+        },
+        { status: 502 }
+      );
+    }
+
+    return NextResponse.json({ ok: true });
+
+  } catch (err) {
+    console.error("Lambda Request Failed:", err);
+
     return NextResponse.json(
-      { error: "The request could not be emailed. Please try again or contact sales." },
-      { status: 502 },
+      {
+        error:
+          "The request could not be emailed. Please try again later.",
+      },
+      { status: 502 }
     );
   }
-
-  return NextResponse.json({ ok: true });
 }
