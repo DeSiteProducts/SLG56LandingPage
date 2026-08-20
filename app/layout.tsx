@@ -17,6 +17,9 @@ export const metadata: Metadata = {
     telephone: false,
   },
   metadataBase: new URL(siteUrl),
+  verification: {
+    google: "oizZurPdff4JP1bQ3iTCV8y42rdAI16039XRVvDfOrI",
+  },
   title: {
     default: seoTitle,
     template: "%s | DeSite Products",
