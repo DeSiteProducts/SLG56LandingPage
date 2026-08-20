@@ -4,6 +4,7 @@ import { absoluteUrl, seoDescription, seoTitle, siteUrl } from "@/lib/seo";
 import "./globals.css";
 
 const metaPixelId = "1047002958291127";
+const gaId = "G-1DE15DJQNY";
 
 export const metadata: Metadata = {
   applicationName: "DeSite Products",
@@ -87,6 +88,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+ 
   return (
     <html lang="en">
       <head>
@@ -97,6 +99,24 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://i.ytimg.com" />
       </head>
       <body>
+        {/* Google Analytics */}
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+          strategy="afterInteractive"
+        />
+
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+
+            function gtag(){
+              dataLayer.push(arguments);
+            }
+
+            gtag('js', new Date());
+            gtag('config', '${gaId}');
+          `}
+        </Script>
         <Script id="meta-pixel" strategy="afterInteractive">
           {`
             !function(f,b,e,v,n,t,s)
