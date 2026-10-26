@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { captureAttribution, type LeadAttribution } from "@/lib/lead-attribution";
 
 type StepId =
   | "consent"
@@ -255,11 +256,13 @@ export function PurchaseQuestionnaire() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [values, setValues] = useState<FormValues>(initialValues);
   const resetTimerRef = useRef<number | null>(null);
+  const attributionRef = useRef<LeadAttribution | null>(null);
   const currentStep = steps[currentIndex];
   const isLastStep = currentIndex === steps.length - 1;
   const progress = useMemo(() => ((currentIndex + 1) / steps.length) * 100, [currentIndex]);
 
   useEffect(() => {
+    attributionRef.current = captureAttribution();
     return () => {
       if (resetTimerRef.current !== null) {
         window.clearTimeout(resetTimerRef.current);
@@ -324,7 +327,7 @@ export function PurchaseQuestionnaire() {
 
     try {
       const response = await fetch("/api/request", {
-        body: JSON.stringify(values),
+        body: JSON.stringify({ ...values, ...(attributionRef.current ?? captureAttribution()) }),
         headers: {
           "Content-Type": "application/json",
         },

@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
+import { normalizeAttribution } from "@/lib/lead-attribution";
 
 export const runtime = "nodejs";
 
 type RequestPayload = {
+  leadSource?: unknown;
+  utmSource?: unknown;
+  utmMedium?: unknown;
+  utmCampaign?: unknown;
   bucketWidth?: unknown;
   city?: unknown;
   consent?: unknown;
@@ -26,6 +31,7 @@ function getString(value: unknown) {
 
 function validatePayload(payload: RequestPayload) {
   const data = {
+    ...normalizeAttribution(payload),
     bucketWidth: getString(payload.bucketWidth),
     city: getString(payload.city),
     consent: payload.consent === true,
@@ -85,7 +91,11 @@ export async function POST(request: Request) {
   let payload: RequestPayload;
 
   try {
-    payload = (await request.json()) as RequestPayload;
+    const body: unknown = await request.json();
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      throw new Error("Invalid request body.");
+    }
+    payload = body as RequestPayload;
   } catch {
     return NextResponse.json(
       { error: "Invalid request body." },
