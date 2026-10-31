@@ -15,6 +15,7 @@ import {
 import { DeferredVideo } from "@/components/DeferredVideo";
 import { FeatureVideoSlider } from "@/components/FeatureVideoSlider";
 import { Header } from "@/components/Header";
+import { SaleCountdown } from "@/components/SaleCountdown";
 import { MachineSpecifications } from "@/components/MachineSpecifications";
 import { MeshSection } from "@/components/MeshSection";
 import { PriceBadge } from "@/components/PriceBadge";
@@ -35,6 +36,7 @@ export default function Home() {
   return (
     <>
       <StructuredData data={getStructuredData()} />
+      <SaleCountdown />
       <Header />
       <main id="contenido">
         <section className="relative isolate overflow-hidden bg-[linear-gradient(135deg,#020617_0%,#073d8f_42%,#0b63ce_72%,#7dd3fc_100%)] px-4 py-10 text-white sm:px-6 sm:py-14 lg:px-8 lg:py-16">
@@ -46,7 +48,12 @@ export default function Home() {
               The first Mini screener for mini equipment in the entire industry
             </h1>
 
-            <div className="mt-7 w-full max-w-6xl rounded-lg border border-white/25 bg-white/12 p-1.5 shadow-soft backdrop-blur-md sm:mt-9 sm:p-2.5">
+            <div className="relative mt-7 w-full max-w-6xl overflow-hidden rounded-lg border border-white/25 bg-white/12 p-1.5 shadow-soft backdrop-blur-md sm:mt-9 sm:p-2.5">
+              <div className="pointer-events-none absolute right-0 top-0 z-10 h-28 w-28 overflow-hidden sm:h-36 sm:w-36">
+                <span className="absolute right-[-2.5rem] top-6 w-40 rotate-45 bg-red-600 py-2 text-center text-sm font-extrabold tracking-widest text-white shadow-lg sm:right-[-2.75rem] sm:top-8 sm:w-52 sm:py-3 sm:text-base">
+                  ON SALE
+                </span>
+              </div>
               <DeferredVideo
                 provider="vimeo"
                 id="1006286529"

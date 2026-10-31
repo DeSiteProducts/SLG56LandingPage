@@ -143,7 +143,7 @@ export function getStructuredData() {
           "@type": "Offer",
           areaServed: "US",
           itemCondition: "https://schema.org/NewCondition",
-          price: "4500",
+          price: "3500",
           priceCurrency: "USD",
           seller: {
             "@id": organizationId,
@@ -154,7 +154,7 @@ export function getStructuredData() {
           "@type": "Offer",
           areaServed: "CA",
           itemCondition: "https://schema.org/NewCondition",
-          price: "4700",
+          price: "4200",
           priceCurrency: "CAD",
           seller: {
             "@id": organizationId,

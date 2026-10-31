@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { getSalePrice } from "@/lib/sale-pricing";
 import { captureAttribution, type LeadAttribution } from "@/lib/lead-attribution";
 
 type StepId =
@@ -110,8 +111,8 @@ const countryOptions = [
 const metaPixelId = "1047002958291127";
 
 const priceByCountry = {
-  Canada: { currency: "CAD", value: 4700 },
-  USA: { currency: "USD", value: 4500 },
+  Canada: { currency: "CAD", value: getSalePrice(4700, "CAD") },
+  USA: { currency: "USD", value: getSalePrice(4500, "USD") },
 } as const;
 
 type Fbq = (...args: unknown[]) => void;

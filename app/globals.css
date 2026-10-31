@@ -46,6 +46,17 @@ section[id] {
   transform: none;
 }
 
+@keyframes sale-countdown-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .sale-countdown-dot {
+    animation: sale-countdown-blink 1.5s ease-in-out infinite;
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
     .reveal {
